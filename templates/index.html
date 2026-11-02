@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПРОГНОЗ-МС | Калькулятор риска</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { font-size: 1.5rem; }
+        label { display: block; margin-top: 0.75rem; font-weight: 500; }
+        input[type="number"], select { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
+        fieldset { margin-top: 1rem; border: 1px solid #ddd; padding: 1rem; border-radius: 6px; }
+        legend { font-weight: 600; padding: 0 0.5rem; }
+        .checkbox-group label { display: inline-block; margin-right: 1rem; font-weight: 400; }
+        button { margin-top: 1.5rem; padding: 0.6rem 1.5rem; font-size: 1rem; cursor: pointer; }
+        .result { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; }
+        .green { background: #e6f4ea; border: 1px solid #34a853; }
+        .yellow { background: #fef7e0; border: 1px solid #fbbc04; }
+        .red { background: #fce8e6; border: 1px solid #ea4335; }
+        .error { background: #fce8e6; border: 1px solid #ea4335; color: #a50e0e; }
+        .disclaimer { margin-top: 2rem; font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>ПРОГНОЗ-МС: Стратификация риска</h1>
+    <p>Калькулятор предназначен для пациентов с ИМТ 25.0–29.9.</p>
+
+    {% if error %}
+        <div class="result error">{{ error }}</div>
+    {% endif %}
+
+    {% if result %}
+        {% if result.status == 'error' %}
+            <div class="result error">{{ result.message }}</div>
+        {% else %}
+            <div class="result {{ result.risk_zone }}">
+                <strong>{{ result.risk_title }}</strong><br>
+                ИМТ: {{ result.bmi }} | Талия/рост: {{ result.whtr }} | Баллы: {{ result.total_score }}<br><br>
+                <em>{{ result.action }}</em>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <form method="POST">
+        <label>Рост (см)</label>
+        <input type="number" step="0.1" name="height" required min="50" max="250">
+
+        <label>Вес (кг)</label>
+        <input type="number" step="0.1" name="weight" required min="20" max="300">
+
+        <label>Окружность талии (см)</label>
+        <input type="number" step="0.1" name="waist" required min="30" max="200">
+
+        <label>Пол</label>
+        <select name="gender">
+            <option value="female">Женский</option>
+            <option value="male">Мужской</option>
+        </select>
+
+        <fieldset>
+            <legend>Дополнительные факторы</legend>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="age_35_above"> Возраст 35+</label>
+                <label><input type="checkbox" name="no_higher_edu"> Нет высшего образования</label>
+                <label><input type="checkbox" name="not_capital"> Проживание не в столице</label>
+                <label><input type="checkbox" name="in_marriage"> В браке</label>
+                <label><input type="checkbox" name="has_children"> Есть дети</label>
+                <label><input type="checkbox" name="night_shifts"> Ночные смены</label>
+                <label><input type="checkbox" name="industry_risk"> Вредное производство</label>
+            </div>
+        </fieldset>
+
+        <button type="submit">Рассчитать риск</button>
+    </form>
+
+    <div class="disclaimer">
+        Инструмент является вспомогательным средством стратификации риска и не заменяет клиническое суждение врача. Результаты не являются медицинской рекомендацией.
+    </div>
+</body>
+</html>
